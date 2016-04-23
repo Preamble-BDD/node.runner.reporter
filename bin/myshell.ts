@@ -46,6 +46,7 @@ interface MyCommand extends commander.ICommand {
  * Module dependencies.
  */
 
+let path = require("path");
 let program: MyCommand = require("commander");
 let chalk = require("chalk");
 let passed = chalk.bold.green;
@@ -65,8 +66,7 @@ if (program.preamble) console.log(`  - preamble: ${program.preamble}`);
 if (program.specs) console.log(`  - specs: ${program.specs}`);
 if (program.name) console.log(`  - name: ${program.name}`);
 
-let matchers = require(program.matchers);
-// console.log("Node - pGlobal.preamble", pGlobal.preamble);
+let matchers = require(path.resolve(program.matchers));
 
 let pluralize = (word: string, count: number): string =>
     (count > 1 || !count) && word + "s" || word;
@@ -123,7 +123,7 @@ if (!pGlobal.hasOwnProperty("preamble")) {
 }
 
 // run preamble
-let preamble = require(program.preamble);
+let preamble = require(path.resolve(program.preamble));
 
 // load specs
-require(program.specs);
+require(path.resolve(program.specs));
