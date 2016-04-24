@@ -1,16 +1,16 @@
 {
   "name": "preamble-ts-node",
-  "version": "0.1.1",
-  "description": "Node runner for Preamble-ts BDD framework",
-  "main": "bin/myshell.js",
+  "version": "0.0.10",
+  "description": "Command-line, terminal based preamble-ts runner, including reporter.",
+  "main": "bin/preamble.js",
   "bin": {
-      "myshell": "bin/myshell.js"
+      "preamble": "bin/preamble.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "bin/myshell.js"
+    "start": "bin/preamble.js"
   },
-  "author": "Jeffrey T. Schwartz",
+  "author": "Jeffrey Schwartz <preamble.ts@gmail.com> (https://github.com/Preamble-BDD/standalone)",
   "license": "MIT",
   "dependencies": {
     "chalk": "^1.1.3",
