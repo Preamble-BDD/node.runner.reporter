@@ -68,6 +68,3 @@ declare interface Reporter {
     reportSpec: (it: IIt) => void;
     reportEnd: (summaryInfo: QueueManagerStats) => void;
 }
-
-/* Describe Reporter's constructor */
-declare function HtmlReporter(): Reporter;
