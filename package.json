@@ -1,10 +1,10 @@
 {
   "name": "preamble-ts-node",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Command-line, terminal based preamble-ts runner, including reporter.",
   "main": "bin/preamble.js",
   "bin": {
-      "preamble": "bin/preamble.js"
+    "preamble": "bin/preamble.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
