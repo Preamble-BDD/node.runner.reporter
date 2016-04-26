@@ -37,9 +37,8 @@ let pGlobal: Global = <Global>global;
  */
 
 interface MyCommand extends commander.ICommand {
-    matchers: string;
-    preamble: string;
     specs: string;
+    testName: string;
 }
 
 /**
@@ -53,27 +52,23 @@ let passed = chalk.bold.green;
 let failed = chalk.bold.red;
 
 program
-    .version("0.1.0")
-    .option("-m, --matchers [pathToMatchers]", "Path to matchers")
-    .option("-p, --preamble [pathToReporter]", "Path to preamble")
+    .version("0.1.0") // TODO(js): this should be pulled from package.json version field
     .option("-s, --specs [pathToSpecs]", "Path to specs")
-    .option("-n, --name [name]", "Name of specs [Suite]", "Suite")
+    .option("-n, --testName [testName]", "Name for test [Suite]", "Suite")
     .parse(process.argv);
 
 console.log("Preamble-TS-Node running with:");
-if (program.matchers) console.log(`  - matchers: ${program.matchers}`);
-if (program.preamble) console.log(`  - preamble: ${program.preamble}`);
 if (program.specs) console.log(`  - specs: ${program.specs}`);
-if (program.name) console.log(`  - name: ${program.name}`);
+if (program.testName) console.log(`  - name: ${program.testName}`);
 
-let matchers = require(path.resolve(program.matchers));
+// let matchers = require(path.resolve(program.matchers));
+let matchers = require("@preamble/preamble-ts-matchers");
 
 let pluralize = (word: string, count: number): string =>
     (count > 1 || !count) && word + "s" || word;
 
 let failedSpecs: IIt[] = [];
 
-// TODO(js): should implement IReporter
 class NodeReporter implements Reporter {
     confOpts: ConfigOptions;
     constructor() { }
@@ -91,7 +86,7 @@ class NodeReporter implements Reporter {
     }
     reportEnd(summaryInfo: QueueManagerStats) {
         let duration = `${parseInt((summaryInfo.timeKeeper.totTime / 1000).toString())}.${summaryInfo.timeKeeper.totTime % 1000}`;
-        let op = `${program.name || this.confOpts.name}: ${summaryInfo.totIts} ${pluralize("spec", summaryInfo.totIts)}, ${summaryInfo.totFailedIts} ${pluralize("failure", summaryInfo.totFailedIts)}, ${summaryInfo.totExcIts} exluded\tcompleted in ${duration}s`;
+        let op = `${program.testName || this.confOpts.name}: ${summaryInfo.totIts} ${pluralize("spec", summaryInfo.totIts)}, ${summaryInfo.totFailedIts} ${pluralize("failure", summaryInfo.totFailedIts)}, ${summaryInfo.totExcIts} exluded\tcompleted in ${duration}s`;
         console.log();
         if (summaryInfo.totFailedIts) {
             console.log(failed(op));
@@ -123,7 +118,7 @@ if (!pGlobal.hasOwnProperty("preamble")) {
 }
 
 // run preamble
-let preamble = require(path.resolve(program.preamble));
+let preamble = require("@preamble/preamble-ts-core");
 
 // load specs
 require(path.resolve(program.specs));
