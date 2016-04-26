@@ -1,10 +1,10 @@
 {
-  "name": "preamble-ts-node",
+  "name": "@preamble/preamble-ts-node",
   "version": "0.0.10",
   "description": "Command-line, terminal based preamble-ts runner, including reporter.",
   "main": "bin/preamble.js",
   "bin": {
-      "preamble": "bin/preamble.js"
+    "preamble": "bin/preamble.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -13,6 +13,8 @@
   "author": "Jeffrey Schwartz <preamble.ts@gmail.com> (https://github.com/Preamble-BDD/standalone)",
   "license": "MIT",
   "dependencies": {
+    "@preamble/preamble-ts-core": "^0.2.3",
+    "@preamble/preamble-ts-matchers": "^0.2.2",
     "chalk": "^1.1.3",
     "commander": "^2.9.0"
   }
