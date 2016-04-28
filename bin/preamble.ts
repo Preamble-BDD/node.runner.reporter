@@ -19,30 +19,64 @@
  */
 "use strict";
 
+// polyfill for Object.assign
+interface ObjectConstructor {
+    assign(target: any, ...sources: any[]): any;
+}
+
+if (typeof Object.assign !== "function") {
+    (function() {
+        Object.assign = function(target) {
+            "use strict";
+            if (target === undefined || target === null) {
+                throw new TypeError("Cannot convert undefined or null to object");
+            }
+
+            let output = Object(target);
+            for (let index = 1; index < arguments.length; index++) {
+                let source = arguments[index];
+                if (source !== undefined && source !== null) {
+                    for (let nextKey in source) {
+                        if (source.hasOwnProperty(nextKey)) {
+                            output[nextKey] = source[nextKey];
+                        }
+                    }
+                }
+            }
+            return output;
+        };
+    })();
+}
+
 /**
  * define preamble global
  */
 
+interface PreambleConfig {
+    timeoutInterval: number;
+    shortCircuit: boolean;
+}
+
 interface Global extends NodeJS.Global {
     preamble: {
-        reporters: any[]
+        reporters: any[],
+        preambleConfig: PreambleConfig
     };
 }
 
-let pGlobal: Global = <Global>global;
-
 /**
- * MyCommand
- * Extends ICommand with additional properties
+ * define MyCommand
  */
 
 interface MyCommand extends commander.ICommand {
     specs: string;
     testName: string;
+    timeoutInterval: number;
+    shortCircuit: boolean;
 }
 
 /**
- * Module dependencies.
+ * Command Line
  */
 
 let path = require("path");
@@ -55,14 +89,19 @@ program
     .version("0.1.0") // TODO(js): this should be pulled from package.json version field
     .option("-s, --specs [pathToSpecs]", "Path to specs")
     .option("-n, --testName [testName]", "Name for test [Suite]", "Suite")
+    .option("-t, --timeoutInterval [timeoutInterval]", "Configuration timeoutInterval", 5000)
+    .option("-q, --shortCircuit [shortCircuit]", "Configuration shortCircuit", false)
     .parse(process.argv);
 
 console.log("Preamble-TS-Node running with:");
 if (program.specs) console.log(`  - specs: ${program.specs}`);
-if (program.testName) console.log(`  - name: ${program.testName}`);
+if (program.testName) console.log(`  - testName: ${program.testName}`);
+if (program.timeoutInterval) console.log(`  - timeoutInterval: ${program.timeoutInterval}`);
+if (program.hasOwnProperty("shortCircuit")) console.log(`  - shortCircuit: ${program.shortCircuit}`);
 
-// let matchers = require(path.resolve(program.matchers));
-let matchers = require("@preamble/preamble-ts-matchers");
+/**
+ * Reporter
+ */
 
 let pluralize = (word: string, count: number): string =>
     (count > 1 || !count) && word + "s" || word;
@@ -86,14 +125,13 @@ class NodeReporter implements Reporter {
     }
     reportEnd(summaryInfo: QueueManagerStats) {
         let duration = `${parseInt((summaryInfo.timeKeeper.totTime / 1000).toString())}.${summaryInfo.timeKeeper.totTime % 1000}`;
-        let op = `${program.testName || this.confOpts.name}: ${summaryInfo.totIts} ${pluralize("spec", summaryInfo.totIts)}, ${summaryInfo.totFailedIts} ${pluralize("failure", summaryInfo.totFailedIts)}, ${summaryInfo.totExcIts} exluded\tcompleted in ${duration}s`;
+        let op = `${program.testName || this.confOpts.name}: ${summaryInfo.totIts} ${pluralize("spec", summaryInfo.totIts)}, ${summaryInfo.totFailedIts} ${pluralize("failure", summaryInfo.totFailedIts)}, ${summaryInfo.totExcIts} excluded\tcompleted in ${duration}s`;
         console.log();
         if (summaryInfo.totFailedIts) {
             console.log(failed(op));
         } else {
             console.log(passed(op));
         }
-        // console.log(`%s: %s %s, %s %s, %s %s`, program.name || this.confOpts.name, summaryInfo.totIts, pluralize("spec", summaryInfo.totIts), summaryInfo.totFailedIts, pluralize("failure", summaryInfo.totFailedIts), summaryInfo.totExcIts, "excluded");
         if (failedSpecs.length) {
             failedSpecs.forEach((it) => {
                 console.log();
@@ -109,16 +147,36 @@ class NodeReporter implements Reporter {
     }
 }
 
-let reporters = [];
-reporters.push(new NodeReporter());
-if (!pGlobal.hasOwnProperty("preamble")) {
-    pGlobal.preamble = { reporters: reporters };
-} else {
-    pGlobal.preamble.reporters = reporters;
-}
+/**
+ * Configuration
+ */
 
-// run preamble
+let pGlobal: Global = <Global>global;
+
+let preambleConfig: PreambleConfig = {
+    timeoutInterval: program.timeoutInterval,
+    shortCircuit: program.shortCircuit
+};
+
+let reporters = [new NodeReporter()];
+
+pGlobal.preamble = { reporters: reporters, preambleConfig: preambleConfig };
+
+/**
+ * Matchers
+ */
+
+let matchers = require("@preamble/preamble-ts-matchers");
+
+/**
+ * Run core
+ */
+
 let preamble = require("@preamble/preamble-ts-core");
+preamble();
 
-// load specs
+/**
+ * Specs
+ */
+
 require(path.resolve(program.specs));
