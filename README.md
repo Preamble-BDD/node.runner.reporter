@@ -2,6 +2,11 @@
 
 Command-line, terminal based preamble-ts runner, including reporter.
 
+### Installation
+npm install -g @preamble/preamble-ts-node
+
+### Instructions
+
   Usage: preamble [options]
 
   Options:
