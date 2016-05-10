@@ -2,14 +2,18 @@
 
 Command-line, terminal based preamble-ts runner, including reporter.
 
+### Installation
+npm install -g @preamble/preamble-ts-node
 
-Usage: preamble [options]
+### Instructions
 
-Options:
+  Usage: preamble [options]
 
-    -h, --help                       output usage information
-    -V, --version                    output the version number
-    -m, --matchers [pathToMatchers]  Path to matchers
-    -p, --preamble [pathToReporter]  Path to preamble
-    -s, --specs [pathToSpecs]        Path to specs
-    -n, --name [name]                Name of specs [Suite]
+  Options:
+
+    -h, --help                               output usage information
+    -V, --version                            output the version number
+    -s, --specs [pathToSpecs]                Path to specs
+    -n, --testName [testName]                Name for test [Suite]
+    -t, --timeoutInterval [timeoutInterval]  Configuration timeoutInterval
+    -q, --shortCircuit [shortCircuit]        Configuration shortCircuit
