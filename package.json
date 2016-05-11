@@ -1,6 +1,6 @@
 {
   "name": "@preamble/preamble-ts-node",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Command-line, terminal based preamble-ts runner, including reporter.",
   "main": "bin/preamble.js",
   "bin": {
