@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// TODO(js): Change version command from "V" to "v"
+
 /**
  * How I imagine this all working:
  *
@@ -84,6 +86,7 @@ let program: MyCommand = require("commander");
 let chalk = require("chalk");
 let passed = chalk.bold.green;
 let failed = chalk.bold.red;
+let processName = "Preamble-TS-Node";
 
 program
     .version("0.1.0") // TODO(js): this should be pulled from package.json version field
@@ -92,12 +95,6 @@ program
     .option("-t, --timeoutInterval [timeoutInterval]", "Configuration timeoutInterval", 5000)
     .option("-q, --shortCircuit [shortCircuit]", "Configuration shortCircuit", false)
     .parse(process.argv);
-
-console.log("Preamble-TS-Node running with:");
-if (program.specs) console.log(`  - specs: ${program.specs}`);
-if (program.testName) console.log(`  - testName: ${program.testName}`);
-if (program.timeoutInterval) console.log(`  - timeoutInterval: ${program.timeoutInterval}`);
-if (program.hasOwnProperty("shortCircuit")) console.log(`  - shortCircuit: ${program.shortCircuit}`);
 
 /**
  * Reporter
@@ -115,6 +112,11 @@ class NodeReporter implements Reporter {
         console.log();
         this.confOpts = confOpts;
         process.stdout.write("Running ");
+        console.log(`${processName} v${confOpts.version} with:`);
+        if (program.specs) console.log(`  - specs: ${program.specs}`);
+        if (program.testName) console.log(`  - testName: ${program.testName}`);
+        if (program.timeoutInterval) console.log(`  - timeoutInterval: ${program.timeoutInterval}`);
+        if (program.hasOwnProperty("shortCircuit")) console.log(`  - shortCircuit: ${program.shortCircuit}`);
     }
     reportSummary(summaryInfo: QueueManagerStats) { }
     reportSpec(it: IIt) {
@@ -124,7 +126,8 @@ class NodeReporter implements Reporter {
         }
     }
     reportEnd(summaryInfo: QueueManagerStats) {
-        let duration = `${parseInt((summaryInfo.timeKeeper.totTime / 1000).toString())}.${summaryInfo.timeKeeper.totTime % 1000}`;
+        let duration = `${parseInt((summaryInfo.timeKeeper.totTime / 1000)
+            .toString())}.${summaryInfo.timeKeeper.totTime % 1000}`;
         let op = `${program.testName || this.confOpts.name}: ${summaryInfo.totIts} ${pluralize("spec", summaryInfo.totIts)}, ${summaryInfo.totFailedIts} ${pluralize("failure", summaryInfo.totFailedIts)}, ${summaryInfo.totExcIts} excluded\tcompleted in ${duration}s`;
         console.log();
         if (summaryInfo.totFailedIts) {
@@ -144,6 +147,8 @@ class NodeReporter implements Reporter {
             });
         }
         console.log();
+        // set process exit code accordingly
+        process.exit(summaryInfo.totFailedIts ? 1 : 0);
     }
 }
 
