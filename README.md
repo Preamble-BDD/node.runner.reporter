@@ -17,3 +17,4 @@ npm install -g @preamble/preamble-ts-node
     -n, --testName [testName]                Name for test [Suite]
     -t, --timeoutInterval [timeoutInterval]  Configuration timeoutInterval
     -q, --shortCircuit [shortCircuit]        Configuration shortCircuit
+    -Q, --quietMode                          Run in quiet mode
