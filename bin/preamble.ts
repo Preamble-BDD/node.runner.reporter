@@ -75,6 +75,7 @@ interface MyCommand extends commander.ICommand {
     testName: string;
     timeoutInterval: number;
     shortCircuit: boolean;
+    quietMode: boolean;
 }
 
 /**
@@ -94,6 +95,7 @@ program
     .option("-n, --testName [testName]", "Name for test [Suite]", "Suite")
     .option("-t, --timeoutInterval [timeoutInterval]", "Configuration timeoutInterval", 5000)
     .option("-q, --shortCircuit [shortCircuit]", "Configuration shortCircuit", false)
+    .option("-Q, --quietMode", "Run in quiet mode")
     .parse(process.argv);
 
 /**
@@ -112,11 +114,16 @@ class NodeReporter implements Reporter {
         console.log();
         this.confOpts = confOpts;
         process.stdout.write("Running ");
-        console.log(`${processName} v${confOpts.version} with:`);
-        if (program.specs) console.log(`  - specs: ${program.specs}`);
-        if (program.testName) console.log(`  - testName: ${program.testName}`);
-        if (program.timeoutInterval) console.log(`  - timeoutInterval: ${program.timeoutInterval}`);
-        if (program.hasOwnProperty("shortCircuit")) console.log(`  - shortCircuit: ${program.shortCircuit}`);
+        if (!program.quietMode) {
+            console.log(`${processName} v${confOpts.version} with:`);
+            if (program.specs) console.log(`  - specs: ${program.specs}`);
+            if (program.testName) console.log(`  - testName: ${program.testName}`);
+            if (program.timeoutInterval) console.log(`  - timeoutInterval: ${program.timeoutInterval}`);
+            if (program.hasOwnProperty("shortCircuit")) console.log(`  - shortCircuit: ${program.shortCircuit}`);
+            if (program.hasOwnProperty("quietMode")) console.log(`  - quietMode: ${program.quietMode}`);
+        } else {
+            console.log(`${processName} v${confOpts.version}:`);
+        }
     }
     reportSummary(summaryInfo: QueueManagerStats) { }
     reportSpec(it: IIt) {
